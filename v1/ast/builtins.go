@@ -190,6 +190,7 @@ var DefaultBuiltins = [...]*Builtin{
 	JWTVerifyHS256,
 	JWTVerifyHS384,
 	JWTVerifyHS512,
+	JWTVerifyEdDSA,
 	JWTDecodeVerify,
 	JWTEncodeSignRaw,
 	JWTEncodeSign,
@@ -2141,6 +2142,19 @@ var JWTVerifyHS512 = &Builtin{
 		types.Args(
 			types.Named("jwt", types.S).Description("JWT token whose signature is to be verified"),
 			types.Named("secret", types.S).Description("plain text secret used to verify the signature"),
+		),
+		types.Named("result", types.B).Description("`true` if the signature is valid, `false` otherwise"),
+	),
+	Categories: tokensCat,
+}
+
+var JWTVerifyEdDSA = &Builtin{
+	Name:        "io.jwt.verify_eddsa",
+	Description: "Verifies if a edDSA JWT signature is valid.",
+	Decl: types.NewFunction(
+		types.Args(
+			types.Named("jwt", types.S).Description("JWT token whose signature is to be verified"),
+			types.Named("certificate", types.S).Description("PEM encoded certificate, PEM encoded public key, or the JWK key (set) used to verify the signature"),
 		),
 		types.Named("result", types.B).Description("`true` if the signature is valid, `false` otherwise"),
 	),
