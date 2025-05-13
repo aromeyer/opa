@@ -3,6 +3,7 @@ package jwk
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/rsa"
 	"encoding/json"
 	"errors"
@@ -29,6 +30,8 @@ func GetPublicKey(key interface{}) (interface{}, error) {
 		return v.Public(), nil
 	case *ecdsa.PrivateKey:
 		return v.Public(), nil
+	case ed25519.PrivateKey:
+		return v.Public(), nil
 	case []byte:
 		return v, nil
 	default:
@@ -44,6 +47,8 @@ func GetKeyTypeFromKey(key interface{}) jwa.KeyType {
 		return jwa.RSA
 	case *ecdsa.PrivateKey, *ecdsa.PublicKey:
 		return jwa.EC
+	case ed25519.PrivateKey, ed25519.PublicKey:
+		return jwa.OctetKeyPair
 	case []byte:
 		return jwa.OctetSeq
 	default:
@@ -66,6 +71,10 @@ func New(key interface{}) (Key, error) {
 		return newECDSAPrivateKey(v)
 	case *ecdsa.PublicKey:
 		return newECDSAPublicKey(v)
+	case ed25519.PrivateKey:
+		return newEDDSAPrivateKey(v)
+	case ed25519.PublicKey:
+		return newEdDSAPublicKey(v)
 	case []byte:
 		return newSymmetricKey(v)
 	default:
@@ -82,6 +91,7 @@ func parse(jwkSrc string) (*Set, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JWK Set: %w", err)
 	}
+	fmt.Printf("rawKeySetJSON: %v\n", rawKeySetJSON)
 	if len(rawKeySetJSON.Keys) == 0 {
 
 		// It might be a single key
@@ -142,6 +152,12 @@ func (r *RawKeyJSON) GenerateKey() (Key, error) {
 		}
 	case jwa.OctetSeq:
 		key = &SymmetricKey{}
+	case jwa.OctetKeyPair:
+		if r.D != nil {
+			key = &EDDSAPrivateKey{}
+		} else {
+			key = &EDDSAPublicKey{}
+		}
 	default:
 		return nil, errors.New("unrecognized key type")
 	}

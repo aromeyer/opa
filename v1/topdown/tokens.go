@@ -305,7 +305,6 @@ func getKeysFromCertOrJWK(certificate string) ([]verificationKey, error) {
 		}
 
 		if block.Type == "PUBLIC KEY" {
-			fmt.Print("PUBLIC KEY\n")
 			key, err := x509.ParsePKIXPublicKey(block.Bytes)
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse a PEM public key: %w", err)
@@ -528,9 +527,7 @@ func builtinJWTVerifyEdDSA(bctx BuiltinContext, operands []*ast.Term, iter func(
 	}
 
 	// Parse key(s) from JWK/JWKS/cert
-	fmt.Printf("keyStr: %s\n", keyStr)
 	keys, err := getKeysFromCertOrJWK(string(keyStr))
-	fmt.Printf("err: %s\n", err)
 	if err != nil {
 		return err
 	}
@@ -538,11 +535,8 @@ func builtinJWTVerifyEdDSA(bctx BuiltinContext, operands []*ast.Term, iter func(
 	if err != nil {
 		return err
 	}
-	fmt.Printf("signature: %s\n", signature)
 	sig := []byte(signature)
-	fmt.Printf("sig: %x\n", sig)
 	msg := []byte(token.header + "." + token.payload)
-	fmt.Printf("msg: %s\n", msg)
 
 	valid := false
 
@@ -557,7 +551,6 @@ func builtinJWTVerifyEdDSA(bctx BuiltinContext, operands []*ast.Term, iter func(
 	for _, key := range keys {
 		if key.alg == "" {
 			if verifyEd25519(key.key, msg, sig) {
-				fmt.Printf("VALID !!! \n")
 				valid = true
 				break
 			}
@@ -822,7 +815,7 @@ var tokenAlgorithms = map[string]tokenAlgorithm{
 	"HS256": {crypto.SHA256, verifyHMAC},
 	"HS384": {crypto.SHA384, verifyHMAC},
 	"HS512": {crypto.SHA512, verifyHMAC},
-	"EdDSA": {crypto.SHA256, verifyEdDSA},
+	"EdDSA": {crypto.SHA256, verifyEdDSA}, // crypto not used
 }
 
 // errSignatureNotVerified is returned when a signature cannot be verified.
@@ -1006,6 +999,7 @@ func (header *tokenHeader) valid() bool {
 func commonBuiltinJWTEncodeSign(bctx BuiltinContext, inputHeaders, jwsPayload, jwkSrc string, iter func(*ast.Term) error) error {
 	keys, err := jwk.ParseString(jwkSrc)
 	if err != nil {
+		fmt.Printf("err: %s\n", err)
 		return err
 	}
 	key, err := keys.Keys[0].Materialize()
@@ -1016,13 +1010,17 @@ func commonBuiltinJWTEncodeSign(bctx BuiltinContext, inputHeaders, jwsPayload, j
 		return errors.New("JWK derived key type and keyType parameter do not match")
 	}
 
+	fmt.Printf("encode_sign ok\n")
+
 	standardHeaders := &jws.StandardHeaders{}
 	jwsHeaders := []byte(inputHeaders)
 	err = json.Unmarshal(jwsHeaders, standardHeaders)
 	if err != nil {
 		return err
 	}
+	fmt.Printf("jwsHeaders: %s\n", jwsHeaders)
 	alg := standardHeaders.GetAlgorithm()
+	fmt.Printf("alg: %s\n", alg)
 	if alg == jwa.Unsupported {
 		return errors.New("unknown signature algorithm")
 	}
@@ -1031,17 +1029,21 @@ func commonBuiltinJWTEncodeSign(bctx BuiltinContext, inputHeaders, jwsPayload, j
 		return errors.New("type is JWT but payload is not JSON")
 	}
 
+	fmt.Printf("jwsPayload: %s\n", jwsPayload)
 	// process payload and sign
 	var jwsCompact []byte
 	jwsCompact, err = jws.SignLiteral([]byte(jwsPayload), alg, key, jwsHeaders, bctx.Seed)
 	if err != nil {
+		fmt.Printf("err: %s\n", err)
 		return err
 	}
+	fmt.Printf("jwsCompact: %s\n", jwsCompact)
 
 	return iter(ast.StringTerm(string(jwsCompact)))
 }
 
 func builtinJWTEncodeSign(bctx BuiltinContext, operands []*ast.Term, iter func(*ast.Term) error) error {
+	fmt.Printf("builtinJWTEncodeSign\n")
 	inputHeadersAsJSON, err := ast.JSON(operands[0].Value)
 	if err != nil {
 		return fmt.Errorf("failed to prepare JWT headers for marshalling: %v", err)

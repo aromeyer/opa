@@ -18,17 +18,19 @@ func New(alg jwa.SignatureAlgorithm) (Signer, error) {
 		return newECDSA(alg)
 	case jwa.HS256, jwa.HS384, jwa.HS512:
 		return newHMAC(alg)
+	case jwa.EDDSA:
+		return newEDDSA(alg)
 	default:
 		return nil, fmt.Errorf(`unsupported signature algorithm %s`, alg)
 	}
 }
 
-// GetSigningKey returns a *rsa.PrivateKey or *ecdsa.PrivateKey typically encoded in PEM blocks of type "RSA PRIVATE KEY"
-// or "EC PRIVATE KEY" for RSA and ECDSA family of algorithms.
+// GetSigningKey returns a *rsa.PrivateKey or *ecdsa.PrivateKey or ed25519.PrivateKey typically encoded in PEM blocks of type "RSA PRIVATE KEY"
+// or "EC PRIVATE KEY" or "ED PRIVATE KEY" for RSA and ECDSA and EdDSA family of algorithms.
 // For HMAC family, it return a []byte value
 func GetSigningKey(key string, alg jwa.SignatureAlgorithm) (interface{}, error) {
 	switch alg {
-	case jwa.RS256, jwa.RS384, jwa.RS512, jwa.PS256, jwa.PS384, jwa.PS512:
+	case jwa.RS256, jwa.RS384, jwa.RS512, jwa.PS256, jwa.PS384, jwa.PS512, jwa.EDDSA:
 		block, _ := pem.Decode([]byte(key))
 		if block == nil {
 			return nil, errors.New("failed to parse PEM block containing the key")

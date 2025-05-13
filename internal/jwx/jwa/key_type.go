@@ -9,7 +9,7 @@ import (
 // KeyType represents the key type ("kty") that are supported
 type KeyType string
 
-var keyTypeAlg = map[string]struct{}{"EC": {}, "oct": {}, "RSA": {}}
+var keyTypeAlg = map[string]struct{}{"EC": {}, "oct": {}, "RSA": {}, "OKP": {}}
 
 // Supported values for KeyType
 const (
@@ -17,6 +17,7 @@ const (
 	InvalidKeyType KeyType = ""    // Invalid KeyType
 	OctetSeq       KeyType = "oct" // Octet sequence (used to represent symmetric keys)
 	RSA            KeyType = "RSA" // RSA
+	OctetKeyPair   KeyType = "OKP" // Octet key pair (used to represent EdDSA key)
 )
 
 // Accept is used when conversion from values given by
@@ -31,6 +32,9 @@ func (keyType *KeyType) Accept(value interface{}) error {
 	default:
 		return fmt.Errorf("invalid type for jwa.KeyType: %T", value)
 	}
+
+	fmt.Printf("tmp: %s \n", tmp.String())
+
 	_, ok := keyTypeAlg[tmp.String()]
 	if !ok {
 		return errors.New("unknown Key Type algorithm")
@@ -58,6 +62,7 @@ func (keyType *KeyType) UnmarshalJSON(data []byte) error {
 	} else {
 		quoted = string(data)
 	}
+	fmt.Printf("quoted: %s\n", quoted)
 	_, ok := keyTypeAlg[quoted]
 	if !ok {
 		return errors.New("unknown signature algorithm")
