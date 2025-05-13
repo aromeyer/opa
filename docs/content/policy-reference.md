@@ -459,7 +459,7 @@ The following algorithms are supported:
 	RS256       "RS256" // RSASSA-PKCS-v1.5 using SHA-256
 	RS384       "RS384" // RSASSA-PKCS-v1.5 using SHA-384
 	RS512       "RS512" // RSASSA-PKCS-v1.5 using SHA-512
-    EDDSA       "EdDSA" // EdDDSA using Ed25519
+	EDDSA       "EdDSA" // EdDDSA using Ed25519
 
 
 {{< info >}}
