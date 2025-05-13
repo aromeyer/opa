@@ -26,7 +26,7 @@ func New(alg jwa.SignatureAlgorithm) (Signer, error) {
 }
 
 // GetSigningKey returns a *rsa.PrivateKey or *ecdsa.PrivateKey or ed25519.PrivateKey typically encoded in PEM blocks of type "RSA PRIVATE KEY"
-// or "EC PRIVATE KEY" or "ED PRIVATE KEY" for RSA and ECDSA and EdDSA family of algorithms.
+// or "EC PRIVATE KEY" or "ED25519 PRIVATE KEY" for RSA and ECDSA and EdDSA family of algorithms.
 // For HMAC family, it return a []byte value
 func GetSigningKey(key string, alg jwa.SignatureAlgorithm) (interface{}, error) {
 	switch alg {
