@@ -43,7 +43,6 @@ func (signature *SignatureAlgorithm) Accept(value interface{}) error {
 	default:
 		return fmt.Errorf("invalid type for jwa.SignatureAlgorithm: %T", value)
 	}
-	fmt.Printf("tmp: %s\n", tmp)
 	_, ok := signatureAlg[tmp.String()]
 	if !ok {
 		return errors.New("unknown signature algorithm")

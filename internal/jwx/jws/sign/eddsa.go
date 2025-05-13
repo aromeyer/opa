@@ -21,7 +21,7 @@ func init() {
 	}
 }
 
-func makeEDDSASignFunc(hash crypto.Hash) eddsaSignFunc {
+func makeEDDSASignFunc(_ crypto.Hash) eddsaSignFunc {
 	return eddsaSignFunc(func(payload []byte, key ed25519.PrivateKey) ([]byte, error) {
 
 		s := ed25519.Sign(key, payload)
@@ -31,7 +31,6 @@ func makeEDDSASignFunc(hash crypto.Hash) eddsaSignFunc {
 }
 
 func newEDDSA(alg jwa.SignatureAlgorithm) (*EDDSASigner, error) {
-	fmt.Printf("alg: %s\n", alg)
 	signfn, ok := eddsaSignFuncs[alg]
 	if !ok {
 		return nil, fmt.Errorf("unsupported algorithm while trying to create EDDSA signer: %s", alg)

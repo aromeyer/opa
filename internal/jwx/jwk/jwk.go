@@ -91,7 +91,7 @@ func parse(jwkSrc string) (*Set, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JWK Set: %w", err)
 	}
-	fmt.Printf("rawKeySetJSON: %v\n", rawKeySetJSON)
+
 	if len(rawKeySetJSON.Keys) == 0 {
 
 		// It might be a single key

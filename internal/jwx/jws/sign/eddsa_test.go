@@ -13,7 +13,7 @@ func TestEdDSACSign(t *testing.T) {
 	}
 	dummy := &dummyStruct{1, 3.4}
 	t.Run("EdDSA Creation Error", func(t *testing.T) {
-		_, err := newEDDSA(jwa.EDDSA)
+		_, err := newEDDSA(jwa.HS256)
 		if err == nil {
 			t.Fatal("EdDSA Object creation should fail")
 		}

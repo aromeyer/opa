@@ -80,7 +80,6 @@ func (b Buffer) Base64Encode() ([]byte, error) {
 
 // Base64Decode decodes the contents of the Buffer using base64.RawURLEncoding
 func (b *Buffer) Base64Decode(v []byte) error {
-	fmt.Printf("v: %s\n", v)
 	enc := base64.RawURLEncoding
 	out := make([]byte, enc.DecodedLen(len(v)))
 	n, err := enc.Decode(out, v)

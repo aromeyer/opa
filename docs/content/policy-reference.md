@@ -459,6 +459,7 @@ The following algorithms are supported:
 	RS256       "RS256" // RSASSA-PKCS-v1.5 using SHA-256
 	RS384       "RS384" // RSASSA-PKCS-v1.5 using SHA-384
 	RS512       "RS512" // RSASSA-PKCS-v1.5 using SHA-512
+    EDDSA       "EdDSA" // EdDDSA using Ed25519
 
 
 {{< info >}}
@@ -537,6 +538,33 @@ io.jwt.encode_sign({
 })
 ```
 ```live:jwt/rs256:output
+```
+
+##### EdDSA Key (Ed25519 Signature)
+
+```live:jwt/rs256:query:merge_down
+io.jwt.encode_sign({
+    "alg": "EdDSA"
+}, {
+    "iss": "joe",
+    "exp": 1300819380,
+    "aud": ["bob", "saul"],
+    "http://example.com/is_root": true,
+    "privateParams": {
+        "private_one": "one",
+        "private_two": "two"
+    }
+},
+{
+    "kty": "OKP",
+    "alg": "EdDSA",
+    "crv": "Ed25519",
+    "d": "MC4CAQAwBQYDK2VwBCIEIEFrKpchjkEL8RoDUfE40sCNvFrnaYvODrLa0eUI0V9-",
+    "x": "MCowBQYDK2VwAyEAsD8QauV-Cgr7kPoZ3MVDDYzov7d8p8LjKOLXI3ni2ew",
+    "use": "sig"
+})
+```
+```live:jwt/eddsa:output
 ```
 
 ##### Raw Token Signing
@@ -756,7 +784,7 @@ Examples of valid values for each timestamp field:
  - Second: `"5"` `"05"`
  - AM/PM mark: `"PM"`
 
-For supported constants, formatting of nanoseconds, time zones, and other fields, see the [Go `time/format` module documentation](https://cs.opensource.google/go/go/+/master:src/time/format.go;l=9-113). 
+For supported constants, formatting of nanoseconds, time zones, and other fields, see the [Go `time/format` module documentation](https://cs.opensource.google/go/go/+/master:src/time/format.go;l=9-113).
 
 #### Timestamp Parsing Example
 
@@ -1041,7 +1069,7 @@ example_verify_resource {
 
 ##### Unsigned Payload Request Signing Example
 The [AWS S3 request signing API](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html)
-supports unsigned payload signing option. This example below shows s3 request signing with payload signing disabled. 
+supports unsigned payload signing option. This example below shows s3 request signing with payload signing disabled.
 
 ```live:providers/aws/sign_req_unsigned:module
 req := {"method": "get", "url": "https://examplebucket.s3.amazonaws.com/data"}

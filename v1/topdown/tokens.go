@@ -999,7 +999,6 @@ func (header *tokenHeader) valid() bool {
 func commonBuiltinJWTEncodeSign(bctx BuiltinContext, inputHeaders, jwsPayload, jwkSrc string, iter func(*ast.Term) error) error {
 	keys, err := jwk.ParseString(jwkSrc)
 	if err != nil {
-		fmt.Printf("err: %s\n", err)
 		return err
 	}
 	key, err := keys.Keys[0].Materialize()
@@ -1010,17 +1009,13 @@ func commonBuiltinJWTEncodeSign(bctx BuiltinContext, inputHeaders, jwsPayload, j
 		return errors.New("JWK derived key type and keyType parameter do not match")
 	}
 
-	fmt.Printf("encode_sign ok\n")
-
 	standardHeaders := &jws.StandardHeaders{}
 	jwsHeaders := []byte(inputHeaders)
 	err = json.Unmarshal(jwsHeaders, standardHeaders)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("jwsHeaders: %s\n", jwsHeaders)
 	alg := standardHeaders.GetAlgorithm()
-	fmt.Printf("alg: %s\n", alg)
 	if alg == jwa.Unsupported {
 		return errors.New("unknown signature algorithm")
 	}
@@ -1029,21 +1024,17 @@ func commonBuiltinJWTEncodeSign(bctx BuiltinContext, inputHeaders, jwsPayload, j
 		return errors.New("type is JWT but payload is not JSON")
 	}
 
-	fmt.Printf("jwsPayload: %s\n", jwsPayload)
 	// process payload and sign
 	var jwsCompact []byte
 	jwsCompact, err = jws.SignLiteral([]byte(jwsPayload), alg, key, jwsHeaders, bctx.Seed)
 	if err != nil {
-		fmt.Printf("err: %s\n", err)
 		return err
 	}
-	fmt.Printf("jwsCompact: %s\n", jwsCompact)
 
 	return iter(ast.StringTerm(string(jwsCompact)))
 }
 
 func builtinJWTEncodeSign(bctx BuiltinContext, operands []*ast.Term, iter func(*ast.Term) error) error {
-	fmt.Printf("builtinJWTEncodeSign\n")
 	inputHeadersAsJSON, err := ast.JSON(operands[0].Value)
 	if err != nil {
 		return fmt.Errorf("failed to prepare JWT headers for marshalling: %v", err)

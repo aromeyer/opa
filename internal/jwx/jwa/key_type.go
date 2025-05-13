@@ -33,8 +33,6 @@ func (keyType *KeyType) Accept(value interface{}) error {
 		return fmt.Errorf("invalid type for jwa.KeyType: %T", value)
 	}
 
-	fmt.Printf("tmp: %s \n", tmp.String())
-
 	_, ok := keyTypeAlg[tmp.String()]
 	if !ok {
 		return errors.New("unknown Key Type algorithm")
@@ -62,7 +60,6 @@ func (keyType *KeyType) UnmarshalJSON(data []byte) error {
 	} else {
 		quoted = string(data)
 	}
-	fmt.Printf("quoted: %s\n", quoted)
 	_, ok := keyTypeAlg[quoted]
 	if !ok {
 		return errors.New("unknown signature algorithm")

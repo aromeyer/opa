@@ -37,35 +37,34 @@ func newEDDSAPrivateKey(key ed25519.PrivateKey) (*EDDSAPrivateKey, error) {
 	}, nil
 }
 
-// Materialize returns the EC-DSA public key represented by this JWK
-func (k EDDSAPublicKey) Materialize() (interface{}, error) {
+// Materialize returns the standard EdDSA Public Key representation stored in the internal representation
+func (k *EDDSAPublicKey) Materialize() (interface{}, error) {
+	if k.key == nil {
+		return nil, errors.New("key has no ed25519.PublicKey associated with it")
+	}
 	return k.key, nil
 }
 
-// Materialize returns the EC-DSA private key represented by this JWK
-func (k EDDSAPrivateKey) Materialize() (interface{}, error) {
+// Materialize returns the standard EdDSA Private Key representation stored in the internal representation
+func (k *EDDSAPrivateKey) Materialize() (interface{}, error) {
+	if k.key == nil {
+		return nil, errors.New("key has no ed25519.PrivateKey associated with it")
+	}
 	return k.key, nil
 }
 
 // GenerateKey creates a ECDSAPublicKey from JWK format
 func (k *EDDSAPublicKey) GenerateKey(keyJSON *RawKeyJSON) error {
-	fmt.Printf("keyJSON.X: %x\n", keyJSON.X)
-
 	if keyJSON.X == nil || keyJSON.Crv == "" {
 		return errors.New("missing mandatory key parameters X, Crv")
 	}
 
 	switch keyJSON.Crv {
 	// case jwa.EdwardsCurveAlgorithm(jwa.Ed25519):
-	case "ed25519":
+	case "Ed25519":
 	default:
 		return fmt.Errorf("invalid curve name %s", keyJSON.Crv)
 	}
-
-	// block, _ := pem.Decode(keyJSON.X.Bytes())
-	// if block == nil {
-	// 	return fmt.Errorf("failed to decode PEM block containing public key")
-	// }
 
 	parsedKey, err := x509.ParsePKIXPublicKey(keyJSON.X.Bytes())
 	if err != nil {
@@ -82,21 +81,14 @@ func (k *EDDSAPublicKey) GenerateKey(keyJSON *RawKeyJSON) error {
 		key:             publicKey,
 	}
 
-	fmt.Printf("OK GenerateKey public\n")
 	return nil
 }
 
 // GenerateKey creates a ECDSAPrivateKey from JWK format
 func (k *EDDSAPrivateKey) GenerateKey(keyJSON *RawKeyJSON) error {
-	fmt.Printf("keyJSON.D: %x\n", keyJSON.D)
 	if keyJSON.D == nil {
 		return errors.New("missing mandatory key parameter D")
 	}
-
-	// block, _ := pem.Decode(keyJSON.D.Bytes())
-	// if block == nil {
-	// 	return fmt.Errorf("failed to decode PEM block containing private key")
-	// }
 
 	parsedKey, err := x509.ParsePKCS8PrivateKey(keyJSON.D.Bytes())
 	if err != nil {
@@ -113,6 +105,5 @@ func (k *EDDSAPrivateKey) GenerateKey(keyJSON *RawKeyJSON) error {
 		key:             privateKey,
 	}
 
-	fmt.Printf("OK GenerateKey private\n")
 	return nil
 }

@@ -66,14 +66,14 @@ func TestEdDSA(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to generate key: %v", err)
 		}
-		if _, ok := jwkKey.(*jwk.ECDSAPublicKey); !ok {
+		if _, ok := jwkKey.(*jwk.EDDSAPublicKey); !ok {
 			t.Fatalf("Key type should be of type: %s", fmt.Sprintf("%T", jwkKey))
 		}
 		eddsaKey, err := jwkKey.Materialize()
 		if err != nil {
 			t.Fatalf("Failed to materialize symmetric key: %v", err)
 		}
-		if jwk.GetKeyTypeFromKey(eddsaKey) != jwa.KeyType(jwa.EDDSA) {
+		if jwk.GetKeyTypeFromKey(eddsaKey) != jwa.OctetKeyPair {
 			t.Fatal("Wrong Key Type")
 		}
 
@@ -149,14 +149,14 @@ func TestEdDSA(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to generate key: %v", err)
 			}
-			if _, ok := jwkKey.(*jwk.RSAPrivateKey); !ok {
+			if _, ok := jwkKey.(*jwk.EDDSAPrivateKey); !ok {
 				t.Fatalf("Key type should be of type: %s", fmt.Sprintf("%T", jwkKey))
 			}
 			eddsaKey, err := jwkKey.Materialize()
 			if err != nil {
 				t.Fatal("Failed to materialize symmetric key")
 			}
-			if jwk.GetKeyTypeFromKey(eddsaKey) != jwa.KeyType(jwa.EDDSA) {
+			if jwk.GetKeyTypeFromKey(eddsaKey) != jwa.OctetKeyPair {
 				t.Fatal("Wrong Key Type")
 			}
 		} else {
@@ -190,7 +190,7 @@ func TestEdDSA(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Failed to generate key: %v", err)
 			}
-			if _, ok := jwkKey.(*jwk.RSAPrivateKey); !ok {
+			if _, ok := jwkKey.(*jwk.EDDSAPrivateKey); !ok {
 				t.Fatalf("Key type should be of type: %s", fmt.Sprintf("%T", jwkKey))
 			}
 		}
